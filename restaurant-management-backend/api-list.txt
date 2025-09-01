@@ -1,0 +1,487 @@
+### AUTH (api/auth)
+
+/login
+	=> Login user & provide cookie
+	=> Access : UNAUTHORIZED
+	=> Request data : username / email , password
+	=> Response data : cookie
+
+/register
+	=> Register User by sending verification email and then redirecting to login page
+	=> Access : UNAUTHORIZED
+	=> Request data : username, email, password
+	=> Response data : message
+
+/email-verification
+	=> Verify user
+	=> Access : UNAUTHORIZED
+	=> Request data : email
+	=> Response data : message with link in inbox
+
+/reset-password-request
+	=> Sends code to the email of respective username / email
+	=> Access : UNAUTHORIZED
+	=> Request data : username / email
+	=> Response data : message with code in inbox
+
+/reset-password
+	=> Update account's old password with new password
+	=> Access : UNAUTHORIZED
+	=> Request data : newPassword, code
+	=> Response data : message
+
+/logout
+	=> Logout user by erasing cookie
+	=> Access : AUTHORIZED [ALL]
+	=> Request data : null
+	=> Response data : message
+	=> Errors :  
+        - 401 Unauthorized  
+
+------------------------------------------------------------------------------------------------------
+
+### USER (api/user)
+
+
+/get-current
+	=> Fetch currently logged-in user
+	=> Access : AUTHORIZED [ALL]
+	=> Request data : null
+	=> Response data : user object
+	=> Errors :  
+        - 401 Unauthorized 
+
+/update-profile
+	=> Update profile
+	=> Access : AUTHORIZED [ALL]
+	=> Request data : username, phone number
+	=> Response data : message
+	=> Errors :  
+        - 400 Bad Request (invalid input)  
+        - 401 Unauthorized (not logged in)  
+
+/update-email-request
+	=> sends verification email to new email
+	=> Access : AUTHORIZED [ALL]
+	=> Request data : email
+	=> Response data : message
+	=> Errors :  
+        - 400 Bad Request (invalid email)  
+        - 401 Unauthorized  
+
+/confirm-email-change
+	=> Update account's old password with new password
+	=> Access : AUTHORIZED [ALL]
+	=> Request data : Query params as userId, email, token
+	=> Response data : cookie
+	=> Errors :  
+        - 400 Bad Request (invalid token or expired)  
+        - 401 Unauthorized  
+        - 404 User not found  
+
+/change-password
+	=> Allow logged-in users to update their password. [Also give option to reset password through code in inbox]
+	=> Access : AUTHORIZED [ALL]
+	=> Request: oldPassword, newPassword
+	=> Response: message
+	=> Errors :  
+        - 401 Unauthorized 
+
+/get-all
+	=> Fetch all users
+	=> Access : ADMIN
+	=> Request data : Query params as: null, username, email, or phone
+	=> Response data : list of user objects
+	=> Errors :  
+        - 401 Unauthorized  
+        - 403 Forbidden (if not admin)  
+
+/get-by-id
+	=> Fetch user by id
+	=> Access : ADMIN
+	=> Request data : Query params - userId
+	=> Response data : user object
+	=> Errors :  
+        - 401 Unauthorized  
+        - 403 Forbidden  
+        - 404 User not found  
+
+/delete-current
+	=> Delete currently logged-in user account
+	=> Access : AUTHORIZED [ALL]
+	=> Request data : null
+	=> Response data : message
+	=> Errors :  
+        - 401 Unauthorized  
+        - 404 User not found  
+
+/delete-by-id
+	=> Delete user account by id
+	=> Access : ADMIN
+	=> Request data : userId
+	=> Response data : message
+	=> Errors :  
+        - 401 Unauthorized  
+        - 403 Forbidden  
+        - 404 User not found  
+
+/set-role
+	=> Admin assigns roles (USER, ADMIN, MODERATOR).
+	=> Access: ADMIN
+	=> Request: userId, role
+	=> Response: message
+
+/upload-avatar
+	=> Upload or update profile picture.
+	=> Access : AUTHORIZED [ALL]
+	=> Request: image file
+	=> Response: image URL
+
+------------------------------------------------------------------------------------------------------
+
+### Menu
+
+----------------------- CATEGORY
+
+GET /categories [filter as category-name]
+	Description: Gets a list of all menu categories.
+	Output: [{"categoryId": 1, "name": "Kathiyawadi"}, ...]
+
+POST /categories
+	Description: Creates a new category.
+	Input: {"name": "New Category", "description": "..."}
+	Output: The newly created category object.
+
+PUT /categories/{id}
+	Description: Updates an existing category.
+	Input: {"name": "Updated Name", "description": "..."}
+	Output: The updated category object.
+
+DELETE /categories/${id}
+	Description: Deletes a category.
+
+----------------------- ITEM
+
+GET /menu-items [filters as category-name, item-name]
+	Description: Gets all menu items. Can be filtered.
+	Example Filter: /api/menu-items?categoryId=2 to get all Punjabi items.
+	Output: A list of menu item objects.
+
+GET /menu-items/{id}
+	Description: Gets a single menu item by its ID, including its list of ingredients.
+	Output: A single, detailed menu item object.
+
+POST /menu-items
+	Description: Creates a new menu item and links it to a category and ingredients.
+	Input: (As shown in the example above)
+	Output: The newly created menu item object.
+
+PUT /menu-items/{id}
+	Description: Updates a menu item's details, category, or ingredients.
+	Input: Similar to the POST request.
+	Output: The updated menu item object.
+
+DELETE /menu-items/{id}
+	Description: Deletes a menu item.
+
+-----------------------------------------------------------------------------------------------------------
+
+Orders (api/orders)
+
+GET /
+	Description: Get a paginated list of all orders.
+	Access: Admin, Manager
+	Request Data: Query params like ?page=1&status=Pending
+	Response Data: A list of OrderSummaryDto objects.
+	Errors: 401 Unauthorized, 403 Forbidden
+
+GET /{id}
+	Description: Get detailed information for a single order.
+	Access: Staff, Customer (for their own order)
+	Request Data: Route parameter id
+	Response Data: A single OrderDetailDto object.
+	Errors: 401 Unauthorized, 403 Forbidden, 404 Not Found
+
+GET /my-orders
+	Description: Get the order history for the currently logged-in customer.
+	Access: Customer
+	Request Data: None
+	Response Data: A list of OrderSummaryDto objects.
+	Errors: 401 Unauthorized
+
+GET /kitchen
+	Description: Get all active orders for the Kitchen Display System (KDS).
+	Access: KitchenStaff, Manager
+	Request Data: None
+	Response Data: A list of KdsOrderDto objects.
+	Errors: 401 Unauthorized, 403 Forbidden
+
+POST /
+	Description: Create a new order (for dine-in, delivery, or takeaway).
+	Access: Customer
+	Request Data: CreateOrderDto object in the body.
+	Response Data: An OrderConfirmationDto object.
+	Errors: 400 Bad Request, 401 Unauthorized
+
+PUT /{id}/status
+	Description: Update the status of an order.
+	Access: KitchenStaff, Manager, Waiter
+	Request Data: {"status": "In Progress"} in the body.
+	Response Data: A success message.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found
+
+POST /{id}/payment
+	Description: Record a payment for an order.
+	Access: Waiter, Manager
+	Request Data: {"paymentMethod": "Card", "amount": 530.00} in the body.
+	Response Data: A success message.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found
+
+
+-----------------------------------------------------------------------------------------------------------
+
+
+Tables & Reservations
+
+GET /tables/layout
+	Description: Get the status and layout of all restaurant tables.
+	Access: Staff
+	Request Data: None
+	Response Data: A list of TableStatusDto objects.
+	Errors: 401 Unauthorized, 403 Forbidden
+
+PUT /tables/{id}/status
+	Description: Manually update a table's status.
+	Access: Waiter, Manager
+	Request Data: {"status": "Available"} in the body.
+	Response Data: A success message.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found
+
+GET /reservations
+	Description: Get all reservations for a specific day.
+	Access: Staff
+	Request Data: Query param ?date=2025-08-19
+	Response Data: A list of ReservationDto objects.
+	Errors: 401 Unauthorized, 403 Forbidden
+
+POST /reservations
+	Description: Create a new table reservation.
+	Access: Customer, Staff
+	Request Data: CreateReservationDto object in the body.
+	Response Data: A ReservationDto object.
+	Errors: 400 Bad Request, 401 Unauthorized
+
+PUT /reservations/{id}/status
+	Description: Update a reservation's status (e.g., 'Confirmed', 'Seated').
+	Access: Staff
+	Request Data: {"status": "Seated"} in the body.
+	Response Data: A success message.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found
+
+DELETE /reservations/{id}
+	Description: Cancel a reservation.
+	Access: Customer (their own), Staff
+	Request Data: Route parameter id
+	Response Data: A success message.
+	Errors: 401 Unauthorized, 403 Forbidden, 404 Not Found
+
+GET /reservations/settings
+	Description: (New) Gets the current reservation window settings.
+	Access: Public (so the frontend can disable the date picker)
+	Request Data: None
+	Response Data: {"reservationStartDate": "2025-09-01T00:00:00", "reservationEndDate": "2025-09-30T23:59:59"}
+	Errors: 404 Not Found (if no settings have been configured yet)
+
+PUT /reservations/settings
+	Description: (Updated) Creates or updates the global reservation window settings in the database.
+	Access: Admin, Manager
+	Request Data: {"reservationStartDate": "2025-09-01T00:00:00", "reservationEndDate": "2025-09-30T23:59:59"} in the body.
+	Response Data: A success message.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden
+
+
+-----------------------------------------------------------------------------------------------------------
+
+
+### Delivery (api/deliveries)
+
+GET /pending
+	Description: Get all orders ready for delivery assignment.
+	Access: Manager
+	Request Data: None
+	Response Data: A list of OrderSummaryDto objects.
+	Errors: 401 Unauthorized, 403 Forbidden
+
+GET /my-tasks
+	Description: Get assigned deliveries for the logged-in driver.
+	Access: Delivery
+	Request Data: None
+	Response Data: A list of DeliveryTaskDto objects.
+	Errors: 401 Unauthorized
+
+PUT /{orderId}/assign
+	Description: Assign a driver to a delivery order.
+	Access: Manager
+	Request Data: {"deliveryPersonId": 5} in the body.
+	Response Data: A success message.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found
+
+PUT /{orderId}/unassign
+	Description: Unassign a driver who was already assgined to a delivery order.
+	Access: Manager
+	Request Data: {"deliveryPersonId": 5} in the body.
+	Response Data: A success message.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found
+
+PUT /{orderId}/status
+	Description: Update the status of a delivery.
+	Access: Delivery
+	Request Data: {"status": "Delivered"} in the body.
+	Response Data: A success message.
+	Errors: 400 Bad Request, 401 Unauthorized, 404 Not Found
+
+--------------------------------------------------------------------------------------------------------
+
+Inventory & Suppliers (api/inventory & api/suppliers)
+
+
+GET /api/inventory
+	Description: Get a list of all ingredients and their stock levels.
+	Access: Manager
+	Request Data: None
+	Response Data: A list of IngredientDto objects.
+	Errors: 401 Unauthorized, 403 Forbidden
+
+POST /api/inventory
+	Description: Adds a new ingredient to the inventory.
+	Input: {"name": "Garlic", "stockQuantity": 5.0, "unitOfMeasure": 11, ...}
+	Output: The newly created ingredient object.
+
+PUT /api/inventory/{id}/stock
+	Description: Manually update the stock quantity of an ingredient.
+	Access: Manager
+	Request Data: {"newStockQuantity": 25.5} in the body.
+	Response Data: The updated IngredientDto object.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found
+
+DELETE /api/inventory/{id}/stock
+	Description: Deletes an ingredient.
+
+GET /api/inventory/purchase-orders
+	Description: Get a list of all purchase orders.
+	Access: Manager
+	Request Data: None
+	Response Data: A list of PurchaseOrderDto objects.
+	Errors: 401 Unauthorized, 403 Forbidden
+
+POST /api/inventory/purchase-orders
+	Description: Create a new purchase order for supplies.
+	Access: Manager
+	Request Data: CreatePurchaseOrderDto object in the body.
+	Response Data: The new PurchaseOrderDto object.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden
+
+GET /api/suppliers
+	Description: Get a list of all suppliers.
+	Access: Manager
+	Request Data: None
+	Response Data: A list of SupplierDto objects.
+	Errors: 401 Unauthorized, 403 Forbidden
+
+POST /api/suppliers
+	Description: Add a new supplier.
+	Access: Manager
+	Request Data: CreateSupplierDto object in the body.
+	Response Data: The new SupplierDto object.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden
+
+---------------------------------------------------------------------------------------------------
+
+### Reports & Analytics (api/reports)
+
+GET /kpis
+	Description: Get key performance indicators for the main dashboard.
+	Access: Manager
+	Request Data: None
+	Response Data: A DashboardKpiDto object.
+	Errors: 401 Unauthorized, 403 Forbidden
+
+GET /sales
+	Description: Get a sales report for a given date range.
+	Access: Manager
+	Request Data: Query params ?from=...&to=...
+	Response Data: A SalesReportDto object.
+	Errors: 400 Bad Request, 401 Unauthorized, 403 Forbidden
+
+GET /profitability
+	Description: Get a report on the profitability of each menu item.
+	Access: Manager
+	Request Data: None
+	Response Data: A list of ProfitabilityReportDto objects.
+	Errors: 401 Unauthorized, 403 Forbidden
+
+
+----------------------------
+
+Settings (api/settings)
+
+GET /operating-hours
+	Description: Get the restaurant's current operating hours and reservation rules.
+	Access: Admin, Manager
+	Response Data: The RestaurantSettingModel object.
+
+PUT /operating-hours
+	Description: Update the restaurant's operating hours and reservation rules.
+	Access: Admin, Manager
+	Request Data: The RestaurantSettingModel object.
+	Response Data: A success message.
+
+GET /blackout-dates
+	Description: Get a list of all configured blackout dates.
+	Access: Admin, Manager
+	Response Data: A list of BlackoutDateModel objects.
+
+POST /blackout-dates
+	Description: Add a new blackout date.
+	Access: Admin, Manager
+	Request Data: {"date": "2025-10-24", "description": "Diwali"}
+	Response Data: The newly created BlackoutDateModel object.
+
+DELETE /blackout-dates/{id}
+	Description: Remove a blackout date.
+	Access: Admin, Manager
+	Request Data: Route parameter id.
+	Response Data: A success message.
+
+GET /taxes
+	Description: Get the current tax and service charge configuration.
+	Access: Admin, Manager
+	Response Data: {"gstRate": 18.0, "serviceChargeRate": 5.0}
+
+PUT /taxes
+	Description: Update the tax and service charge rates.
+	Access: Admin, Manager
+	Request Data: {"gstRate": 18.0, "serviceChargeRate": 5.0}
+	Response Data: A success message.
+
+------------------------------------------------------------------------------------------------------------------
+
+### Promotions (api/promotions)
+
+POST /
+	Description: Create a new, advanced promotion.
+	Access: Admin, Manager
+	Request Data: PromotionModel object (including optional fields like StartTime, ApplicableDaysOfWeek, etc.).
+	Response Data: The newly created PromotionModel object.
+
+PUT /{id}
+	Description: Update an existing promotion with advanced rules.
+	Access: Admin, Manager
+	Request Data: PromotionModel object.
+	Response Data: The updated PromotionModel object.
+
+DELETE /{id}
+	Description: Delete an existing promotion.
+	Access: Admin, Manager
+	Request Data: PromotionModel object.
+	Response Data: The updated PromotionModel object.

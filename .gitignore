@@ -1,0 +1,55 @@
+# ----------------------
+# .NET Web API (inside restaurant-management-backend/)
+# ----------------------
+restaurant-management-backend/bin/
+restaurant-management-backend/obj/
+restaurant-management-backend/*.user
+restaurant-management-backend/*.suo
+restaurant-management-backend/*.cache
+restaurant-management-backend/*.log
+restaurant-management-backend/.vs/
+restaurant-management-backend/.vscode/
+restaurant-management-backend/*.dbmdl
+restaurant-management-backend/*.bak
+restaurant-management-backend/*.swp
+restaurant-management-backend/*.userprefs
+restaurant-management-backend/project.lock.json
+restaurant-management-backend/project.fragment.lock.json
+
+# NuGet
+restaurant-management-backend/*.nupkg
+restaurant-management-backend/packages/
+restaurant-management-backend/.nuget/
+restaurant-management-backend/*.snupkg
+
+# Build artifacts
+restaurant-management-backend/artifacts/
+restaurant-management-backend/publish/
+restaurant-management-backend/out/
+
+# ----------------------
+# Angular (inside restaurant-management-frontend/)
+# ----------------------
+restaurant-management-frontend/node_modules/
+restaurant-management-frontend/dist/
+restaurant-management-frontend/.tmp/
+restaurant-management-frontend/out-tsc/
+restaurant-management-frontend/coverage/
+restaurant-management-frontend/.angular/cache/
+restaurant-management-frontend/.angular/
+restaurant-management-frontend/npm-debug.log
+restaurant-management-frontend/yarn-error.log
+restaurant-management-frontend/yarn-debug.log
+
+# Env files (keep secrets out of git)
+restaurant-management-frontend/src/environments/environment*.ts
+
+# ----------------------
+# Common (root + both projects)
+# ----------------------
+.vscode/
+.idea/
+*.iml
+*.class
+.DS_Store
+Thumbs.db
