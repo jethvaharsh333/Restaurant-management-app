@@ -1,0 +1,45 @@
+<form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+        <div class="mb-3">
+            <label class="form-label w-12 fw-medium">Username</label>
+            <input type="text" class="input-modern" id="text" placeholder="harsh@123" formControlName="username">
+            
+            @if (username.invalid && username.touched && username.errors?.['required']) {
+                <small class="text-danger ms-1">Username is required.</small>
+            }
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label w-12 fw-my-semibold">Email</label>
+            <input type="email" class="input-modern" id="email" placeholder="harsh@example.com" formControlName="email">
+            @if (email.invalid && email.touched && email.errors?.['required']) {
+                <small class="text-danger ms-1">Email is required.</small>
+            }
+        </div>
+
+        <div class="mb-4-5">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="input-modern " id="password" placeholder="••••••" formControlName="password">
+            @if (password.invalid && password.touched && password.errors?.['required']) {
+                <small class="text-danger ms-1">Password is required.</small>
+            }
+        </div>
+
+        <div class="mb-3">
+            <button [disabled]="isLoading" type="submit"
+                class="fs-6 btn-dark-modern w-100 d-flex justify-content-center ">
+                {{ isLoading ? 'Loading...' : 'Create an account' }}
+            </button>
+            @if(errorMessage){
+                <small class="text-danger ms-1">{{ errorMessage }}</small>
+            }
+        </div>
+
+        <div class="text-center mt-2 d-flex justify-content-center gap-2">
+            <a routerLink="/auth/login" class="fs-7 link-animated text-secondary text-decoration-none">
+                Already have an account?
+            </a>
+            <a routerLink="/auth/verification" class="fs-7 link-animated text-secondary text-decoration-none">
+                Verify account?
+            </a>
+        </div>
+    </form>

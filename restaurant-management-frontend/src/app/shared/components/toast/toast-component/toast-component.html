@@ -1,0 +1,31 @@
+<div class="toast-wrapper">
+  <div
+    class="toast"
+    *ngFor="let toast of toasts; trackBy: trackByToastId"
+    [ngClass]="toast.type"
+    animate.enter="slide-in-right"
+    animate.leave="slide-out-right"
+    (click)="onToastClick(toast)"
+    (mouseenter)="onToastMouseEnter(toast)"
+    (mouseleave)="onToastMouseLeave(toast)"
+    [attr.role]="'alert'"
+    [attr.aria-live]="'polite'">
+
+    <div class="icon" aria-hidden="true">
+      {{ getIcon(toast.type) }}
+    </div>
+
+    <div class="message">
+      {{ toast.message }}
+    </div>
+
+    <button 
+      *ngIf="toast.dismissible !== false"
+      class="close-btn"
+      (click)="onToastClick(toast); $event.stopPropagation()"
+      [attr.aria-label]="'Close notification'"
+      type="button">
+      ×
+    </button>
+  </div>
+</div>

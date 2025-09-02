@@ -1,0 +1,14 @@
+<app-auth-layout>
+  <app-auth-card
+    title="Login"
+    label="Welcome Back"
+    backButtonLabel="Don't have an account?"
+    backButtonName="Sign Up"
+    backButtonLink="/sign-up"
+    [isSSO]="true"
+  >
+    <div class="mt-3 w-100">
+      <app-login-form></app-login-form>
+    </div>
+  </app-auth-card>
+</app-auth-layout>

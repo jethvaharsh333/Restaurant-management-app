@@ -1,0 +1,29 @@
+/* Slide in (enter) */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Slide out (leave) */
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    max-height: 100px;
+    margin-bottom: 8px;
+  }
+  to {
+    transform: translateX(100%) scale(0.9);
+    opacity: 0;
+    max-height: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
